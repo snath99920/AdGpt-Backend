@@ -5,7 +5,7 @@ const bodyParser = require("body-parser");
 const cors = require("cors"); // Import the cors package
 
 const app = express();
-const port = 8080;
+const port = 8081;
 
 const replicate = new Replicate({
   auth: "7ac4afe3255b290c84685eb8e94e7e86884673d7",

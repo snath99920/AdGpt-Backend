@@ -359,6 +359,11 @@ raw-body@2.5.1:
     iconv-lite "0.4.24"
     unpipe "1.0.0"
 
+replicate@^0.16.1:
+  version "0.16.1"
+  resolved "https://registry.yarnpkg.com/replicate/-/replicate-0.16.1.tgz#8a096c7e91f6fc3630025efdba9b5e6f521b2d21"
+  integrity sha512-7GlY2IRJd4CwXLSO+eTNCRjYFlT10pgHQjYnwCBczr4+qdErIZp4sAEuRFfhzXNU3Bi+sYJJLpcddnUOFxStNg==
+
 safe-buffer@5.2.1:
   version "5.2.1"
   resolved "https://registry.yarnpkg.com/safe-buffer/-/safe-buffer-5.2.1.tgz#1eaf9fa9bdb1fdd4ec75f58f9cdb4e6b7827eec6"

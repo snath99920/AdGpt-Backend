@@ -7,7 +7,8 @@ let router = express.Router();
 module.exports = router;
 
 router.post("/create-checkout-session", async (req, res) => {
-  console.log("req sent");
+  console.log(req.body.customer_id, "req sent");
+
   const session = await stripe.checkout.sessions.create({
     line_items: [
       {
@@ -17,10 +18,11 @@ router.post("/create-checkout-session", async (req, res) => {
       },
     ],
     mode: "subscription",
+    customer: req.body.customer_id,
     success_url: `http://localhost:5177/success-b1ded2d5-8ecc-4e71-a2d5-a4eccb5f49857c514309-f80d-4e7e-8dba-898caa2b1095`,
     cancel_url: `http://localhost:5177`,
   });
-  console.log(session);
 
+  console.log(session, "Session of the user");
   res.redirect(303, session.url);
 });

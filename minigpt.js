@@ -1,9 +1,13 @@
+const openAI = require("openai")
 const express = require("express");
 const Replicate = require("replicate");
 const { promises: fs } = require("fs");
 const bodyParser = require("body-parser");
 const cors = require("cors"); // Import the cors package
-
+const newConfig = new openAI.Configuration({
+  apiKey: "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",
+});
+const openai = new openAI.OpenAIApi(newConfig);
 const app = express();
 const port = 8081;
 
@@ -14,6 +18,82 @@ const replicate = new Replicate({
 app.use(cors()); // Use the cors middleware to allow all origins
 
 app.use(bodyParser.json({ limit: "50mb" }));
+
+app.get("/get-GPT4", async (req, res) => {
+  try {
+    const { imageDesc } = req.body;
+    console.log("Here is the image description" + imageDesc)
+
+    if (!imageDesc) {
+      return res.status(400).json({ error: "Missing Image Description" });
+    }
+    
+    const chatHistory = [];
+
+    const messageList = chatHistory.map(([input_text, completion_text]) => ({
+      role: "user" === input_text ? "ChatGPT" : "user",
+      content: input_text,
+    }));
+
+    messageList.push({
+      role: "user",
+      content:
+        `${imageDesc}` + '\n\n' +
+        "This is the description of a digital advertisement that I have to create. " +
+        "Suggest realistic background ideas for ads as prompts that I can enter into DALLE. " + 
+        "List the prompts out. Your answer should only contain this list of prompts.",
+    });
+
+    const GPTOutput = await openai.createChatCompletion({
+      model: "gpt-3.5-turbo",
+      messages: messageList,
+    });
+
+    const output_text = GPTOutput.data.choices[0].message.content;
+    console.log(output_text)
+    
+    return res.status(200).json(output_text);
+  } catch (error) {
+    console.error("Error:", error);
+    return res.status(500).json({ error: "Internal server error." });
+  }
+});
+
+app.post("/create-bg", async (req, res) => {
+  try {
+    const { UploadedFile, data } = req.body;
+
+    if (!UploadedFile || !data) {
+      return res.status(400).json({ error: "Missing Uploaded file or prompt data." });
+    }
+
+    const clipdropApiKey = "ba1938f624f0cf7ee71d73473a984b6fa554571577e2039b889c721ff3e29f28e0b6b9dcd239e815b8d1ca48bf927680";
+    const form = new FormData();
+    form.append("image_file", UploadedFile);
+    form.append("prompt", data);
+
+    try {
+      const response = await fetch(
+        "https://clipdrop-api.co/replace-background/v1",
+        {
+          method: "POST",
+          headers: {
+            "x-api-key": clipdropApiKey,
+          },
+          body: form,
+        }
+      );
+      return response;
+    } catch (error) {
+      console.error(error);
+    }
+
+    return res.status(200).json(output);
+  } catch (error) {
+    console.error("Error:", error);
+    return res.status(500).json({ error: "Internal server error." });
+  }
+});
 
 app.post("/process-image", async (req, res) => {
   try {

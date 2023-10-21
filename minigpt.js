@@ -5,7 +5,7 @@ const { promises: fs } = require("fs");
 const bodyParser = require("body-parser");
 const cors = require("cors"); // Import the cors package
 const newConfig = new openAI.Configuration({
-  apiKey: "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",
+  apiKey: "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",
 });
 const openai = new openAI.OpenAIApi(newConfig);
 const app = express();
@@ -19,10 +19,9 @@ app.use(cors()); // Use the cors middleware to allow all origins
 
 app.use(bodyParser.json({ limit: "50mb" }));
 
-app.get("/get-GPT4", async (req, res) => {
+app.post("/get-GPT4", async (req, res) => {
   try {
     const { imageDesc } = req.body;
-    console.log("Here is the image description" + imageDesc)
 
     if (!imageDesc) {
       return res.status(400).json({ error: "Missing Image Description" });
@@ -50,7 +49,6 @@ app.get("/get-GPT4", async (req, res) => {
     });
 
     const output_text = GPTOutput.data.choices[0].message.content;
-    console.log(output_text)
     
     return res.status(200).json(output_text);
   } catch (error) {
@@ -61,16 +59,16 @@ app.get("/get-GPT4", async (req, res) => {
 
 app.post("/create-bg", async (req, res) => {
   try {
-    const { UploadedFile, data } = req.body;
+    const { photo, prompt } = req.body;
 
-    if (!UploadedFile || !data) {
+    if (!photo || !prompt) {
       return res.status(400).json({ error: "Missing Uploaded file or prompt data." });
     }
 
     const clipdropApiKey = "ba1938f624f0cf7ee71d73473a984b6fa554571577e2039b889c721ff3e29f28e0b6b9dcd239e815b8d1ca48bf927680";
     const form = new FormData();
-    form.append("image_file", UploadedFile);
-    form.append("prompt", data);
+    form.append("image_file", photo);
+    form.append("prompt", prompt);
 
     try {
       const response = await fetch(
@@ -83,12 +81,11 @@ app.post("/create-bg", async (req, res) => {
           body: form,
         }
       );
-      return response;
+      return res.status(200).json(response);
     } catch (error) {
       console.error(error);
     }
 
-    return res.status(200).json(output);
   } catch (error) {
     console.error("Error:", error);
     return res.status(500).json({ error: "Internal server error." });
@@ -127,8 +124,7 @@ const processImageWithReplicate = async (dataURI, prompt, model) => {
   //   const updatedDataURI = `data:${mimeType};base64,${buffer.toString('base64')}`;
   //   const updatedDataURI = `data:${mimeType};base64,${buffer.toString('base64')}`;
 
-  //   console.log(dataURI + '\n\n\n\n')
-  //   console.log(updatedDataURI)
+
 
   const input = {
     // image: updatedDataURI,
